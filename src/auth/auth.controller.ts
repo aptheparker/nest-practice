@@ -25,7 +25,6 @@ export class AuthController {
       loginDto.password,
     );
 
-    console.log(user);
     const access_token = await this.authService.generateAccessToken(user);
     const refresh_token = await this.authService.generateRefreshToken(user);
 
