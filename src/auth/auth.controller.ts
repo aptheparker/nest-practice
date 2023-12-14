@@ -8,7 +8,6 @@ import {
   UseGuards,
   Request,
   Res,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
@@ -50,12 +49,12 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Body() refreshTokenDto, @Res({ passthrough: true }) res) {
-    const newAccessToken = (await this.authService.refresh(refreshTokenDto))
-      .accessToken;
-    res.setHeader('Authorization', 'Bearer ' + newAccessToken);
-    res.cookie('access_token', newAccessToken, {
+    const accessToken = await this.authService.refresh(refreshTokenDto);
+
+    res.setHeader('Authorization', 'Bearer ' + accessToken);
+    res.cookie('access_token', accessToken, {
       httpOnly: true,
     });
-    res.send({ newAccessToken });
+    res.send({ accessToken });
   }
 }

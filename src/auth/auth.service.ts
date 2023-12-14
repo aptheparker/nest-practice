@@ -10,7 +10,7 @@ export class AuthService {
   ) {}
 
   async validateUser(username, pass) {
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findUserByUsername(username);
 
     if (user?.password !== pass) {
       throw new UnauthorizedException();
@@ -31,17 +31,17 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
-  async refresh(refreshTokenDto): Promise<{ accessToken: string }> {
+  async refresh(refreshTokenDto): Promise<string> {
     const { refresh_token } = refreshTokenDto;
     const decodedRefreshToken = this.jwtService.verify(refresh_token, { secret: process.env.JWT_REFRESH_SECRET });
+
     const userId = decodedRefreshToken.sub;
-    const user = await this.usersService.findByUserId(userId);
+    const user = await this.usersService.findUserByUserId(userId);
     if (!user) {
       throw new UnauthorizedException('Invalid user!');
     }
 
     const accessToken = await this.generateAccessToken(user);
-
-    return {accessToken};
+    return accessToken;
   }
 }
